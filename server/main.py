@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import uvicorn
 
-app = FastAPI()
+from server.custom_openapi import setup_custom_openapi
+from server.auth.router import router as router_auth
+from server.auth.router import router_token as router_token
 
-class Item(BaseModel):
-    name: str
-    age: int
+app = FastAPI(title='Shop', swagger_ui_parameters={'defaultModelsExpandDepth': -1, "tryItOutEnabled": True})
 
+app.include_router(router_auth)
+app.include_router(router_token)
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,10 +18,4 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-@app.post("/submit/")
-async def submit(item: Item):
-    response = {"message": f"Привет, {item.name}! Твой возраст: {item.age}"}
-    return response
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+setup_custom_openapi(app)
