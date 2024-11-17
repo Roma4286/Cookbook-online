@@ -3,8 +3,18 @@ import uuid
 from datetime import datetime, timedelta
 
 from jose import jwt
-from server.config import settings
+from sqlalchemy.orm import Session
 
+from models import User
+from config import settings
+
+def add_user_in_db(user: User, db: Session):
+    db.add(user)
+    db.commit()
+
+def get_user(username: str, db: Session):
+    user = db.query(User).filter(User.username == username).first()
+    return user
 
 def create_jwt(
     data: dict,
@@ -19,7 +29,7 @@ def create_jwt(
         expire = now + expire_timedelta
     else:
         expire = now + timedelta(minutes=expire_minutes)
-    to_encode.update(exp=expire, iat=now, jti=str(uuid.uuid4())) # FOR_ME jti replace with another unique id
+    to_encode.update(exp=expire, iat=now)
     encoded = jwt.encode(to_encode, private_key, algorithm=algorithm)
     return encoded
 

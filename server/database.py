@@ -1,17 +1,17 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import registry
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 
-from server.config import settings
+from config import settings
 
 engine = create_engine(settings.db_url)
-
-metadata = MetaData()
 
 mapper_registry = registry()
 Base = mapper_registry.generate_base()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base.metadata.create_all(bind=engine)
 
 
 def get_db():

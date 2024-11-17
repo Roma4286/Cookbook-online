@@ -4,7 +4,7 @@ import os
 from pydantic import BaseModel
 from pydantic.v1 import BaseSettings
 
-load_dotenv(dotenv_path='server/.env')
+load_dotenv()
 
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
