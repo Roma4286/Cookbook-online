@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from models import User
 from custom_openapi import setup_custom_openapi
 from auth.router import router as router_auth
 from auth.router import router_token as router_token

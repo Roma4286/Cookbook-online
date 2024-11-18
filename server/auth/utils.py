@@ -1,5 +1,4 @@
 import time
-import uuid
 from datetime import datetime, timedelta
 
 from jose import jwt
