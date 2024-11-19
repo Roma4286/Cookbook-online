@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
@@ -23,5 +23,5 @@ class Ingredients(BaseModel):
 
 class Recipes(BaseModel):
     name_dish: str
-    ingredients: [Ingredients]
+    ingredients: List[Ingredients]
     description: str
