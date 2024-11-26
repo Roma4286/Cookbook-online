@@ -1,24 +1,45 @@
-import requests
 from nicegui import ui
+import requests
 
-ui.run()
+API_URL = "http://127.0.0.1:8000"
 
-def nicegui_interface():
-    ui.label("Введите ваше имя и возраст:")
-    name_input = ui.input(label="Имя")
-    age_input = ui.input(label="Возраст")
+def login(username, password):
+    try:
+        response = requests.post(f"{API_URL}/token", data={"username": username, "password": password})
+        response.raise_for_status()
+        token = response.json()["access_token"]
+        ui.navigate.to('http://127.0.0.1:8080/user')
+    except requests.exceptions.RequestException as e:
+        ui.notify(f"Ошибка авторизации: {e.response.json().get('detail', 'Неизвестная ошибка')}", color="negative")
 
-    # Функция отправки данных
-    async def submit_data():
-        name = name_input.value
-        age = int(age_input.value)
-        response = requests.post('http://127.0.0.1:8000/submit/', json={"name": name, "age": age})
-        if response.status_code == 200:
-            print(1)
-            ui.notify(response.json().get("message"))
-        else:
-            ui.notify("Ошибка при отправке данных.")
+def register(username, email, password):
+    try:
+        response = requests.post(f"{API_URL}/auth/register", json={"username": username, "email": email, "password": password})
+        response.raise_for_status()
+        ui.notify("Регистрация прошла успешно!", color="positive")
+    except requests.exceptions.RequestException as e:
+        ui.notify(f"Ошибка регистрации: {e.response.json().get('detail', 'Неизвестная ошибка')}", color="negative")
 
-    ui.button("Отправить", on_click=submit_data)
+def build_auth_page():
+    with ui.row():
+        with ui.column():
+            ui.label("Авторизация")
+            username_input = ui.input(label="Имя пользователя")
+            password_input = ui.input(label="Пароль", password=True)
+            ui.button("Войти", on_click=lambda: login(username_input.value, password_input.value))
+        with ui.column():
+            ui.label("Регистрация")
+            reg_username_input = ui.input(label="Имя пользователя")
+            reg_email_input = ui.input(label="Электронная почта")
+            reg_password_input = ui.input(label="Пароль", password=True)
+            ui.button("Зарегистрироваться", on_click=lambda: register(
+                reg_username_input.value, reg_email_input.value, reg_password_input.value
+            ))
 
-nicegui_interface()
+@ui.page("/user")
+def user_page():
+    ui.label(f"Добро пожаловать, 1!")
+
+ui.page("/")(build_auth_page)
+
+ui.run(port=8080)

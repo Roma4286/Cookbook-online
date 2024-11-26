@@ -1,6 +1,7 @@
 from typing import Optional, Annotated
 
 from fastapi import HTTPException, APIRouter, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError
 from passlib.context import CryptContext
@@ -38,8 +39,7 @@ async def post_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     if not db_user or not pwd_context.verify(form_data.password, db_user.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token = create_jwt(data={"sub": form_data.username, 'jti': str(db_user.id)})
-
-    return Token(access_token=access_token, token_type="bearer")
+    return {"access_token": access_token, "token_type": "bearer"}
 
 async def get_current_user(access_token: Optional[str] = Depends(oauth2_scheme),  db: Session = Depends(get_db)):
     if not access_token:
